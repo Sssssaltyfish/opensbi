@@ -23,9 +23,9 @@
 #include <sbi/sbi_timer.h>
 #include <sbi/sbi_trap.h>
 
-static void __noreturn sbi_trap_error(const char *msg, int rc,
-				      ulong mcause, ulong mtval, ulong mtval2,
-				      ulong mtinst, struct sbi_trap_regs *regs)
+static void __noreturn sbi_trap_error(const char *msg, int rc, ulong mcause,
+				      ulong mtval, ulong mtval2, ulong mtinst,
+				      struct sbi_trap_regs *regs)
 {
 	u32 hartid = current_hartid();
 
@@ -33,8 +33,8 @@ static void __noreturn sbi_trap_error(const char *msg, int rc,
 	sbi_printf("%s: hart%d: mcause=0x%" PRILX " mtval=0x%" PRILX "\n",
 		   __func__, hartid, mcause, mtval);
 	if (misa_extension('H')) {
-		sbi_printf("%s: hart%d: mtval2=0x%" PRILX
-			   " mtinst=0x%" PRILX "\n",
+		sbi_printf("%s: hart%d: mtval2=0x%" PRILX " mtinst=0x%" PRILX
+			   "\n",
 			   __func__, hartid, mtval2, mtinst);
 	}
 	sbi_printf("%s: hart%d: mepc=0x%" PRILX " mstatus=0x%" PRILX "\n",
@@ -86,6 +86,8 @@ static void __noreturn sbi_trap_error(const char *msg, int rc,
 int sbi_trap_redirect(struct sbi_trap_regs *regs,
 		      const struct sbi_trap_info *trap)
 {
+	// sbi_printf("Redirecting trap\n");
+
 	ulong hstatus, vsstatus, prev_mode;
 #if __riscv_xlen == 32
 	bool prev_virt = (regs->mstatusH & MSTATUSH_MPV) ? true : false;
@@ -262,10 +264,11 @@ static int sbi_trap_aia_irq(struct sbi_trap_regs *regs, ulong mcause)
  */
 struct sbi_trap_regs *sbi_trap_handler(struct sbi_trap_regs *regs)
 {
-	int rc = SBI_ENOTSUPP;
+	int rc		= SBI_ENOTSUPP;
 	const char *msg = "trap handler failed";
-	ulong mcause = csr_read(CSR_MCAUSE);
+	ulong mcause	= csr_read(CSR_MCAUSE);
 	ulong mtval = csr_read(CSR_MTVAL), mtval2 = 0, mtinst = 0;
+	ulong old_a0 = regs->a0, old_a1 = regs->a1;
 	struct sbi_trap_info trap;
 
 	if (misa_extension('H')) {
@@ -312,6 +315,17 @@ struct sbi_trap_regs *sbi_trap_handler(struct sbi_trap_regs *regs)
 	case CAUSE_MACHINE_ECALL:
 		rc  = sbi_ecall_handler(regs);
 		msg = "ecall handler failed";
+		if (regs->a0 == SBI_ENOTSUPP) {
+			msg	   = "trap redirect failed";
+			trap.epc   = regs->mepc;
+			trap.cause = CAUSE_USER_ECALL;
+			regs->a0   = old_a0;
+			regs->a1   = old_a1;
+			// sbi_printf(
+			// 	"Delegate to S, current a0: %ld, a1: %ld, a7: %ld\n",
+			// 	regs->a0, regs->a1, regs->a7);
+			rc = sbi_trap_redirect(regs, &trap);
+		}
 		break;
 	case CAUSE_LOAD_ACCESS:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ACCESS_LOAD);
