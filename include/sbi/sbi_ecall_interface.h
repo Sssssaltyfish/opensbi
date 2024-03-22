@@ -12,27 +12,34 @@
 
 /* clang-format off */
 
+// The 100% standard-incompatible offset used to distinguish
+// between SBI call and Linux syscall.
+//
+// We choose 1000 because all linux syscalls have their ids < 999.
+#define RUX_EID_OFFSET 1000
+
+
 /* SBI Extension IDs */
-#define SBI_EXT_0_1_SET_TIMER			0x0
-#define SBI_EXT_0_1_CONSOLE_PUTCHAR		0x1
-#define SBI_EXT_0_1_CONSOLE_GETCHAR		0x2
-#define SBI_EXT_0_1_CLEAR_IPI			0x3
-#define SBI_EXT_0_1_SEND_IPI			0x4
-#define SBI_EXT_0_1_REMOTE_FENCE_I		0x5
-#define SBI_EXT_0_1_REMOTE_SFENCE_VMA		0x6
-#define SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID	0x7
-#define SBI_EXT_0_1_SHUTDOWN			0x8
-#define SBI_EXT_BASE				0x10
-#define SBI_EXT_TIME				0x54494D45
-#define SBI_EXT_IPI				0x735049
-#define SBI_EXT_RFENCE				0x52464E43
-#define SBI_EXT_HSM				0x48534D
-#define SBI_EXT_SRST				0x53525354
-#define SBI_EXT_PMU				0x504D55
-#define SBI_EXT_DBCN				0x4442434E
-#define SBI_EXT_SUSP				0x53555350
-#define SBI_EXT_CPPC				0x43505043
-#define SBI_EXT_DBTR				0x44425452
+#define SBI_EXT_0_1_SET_TIMER			(0x0 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_CONSOLE_PUTCHAR		(0x1 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_CONSOLE_GETCHAR		(0x2 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_CLEAR_IPI			(0x3 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_SEND_IPI			(0x4 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_REMOTE_FENCE_I		(0x5 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_REMOTE_SFENCE_VMA		(0x6 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID	(0x7 + RUX_EID_OFFSET)
+#define SBI_EXT_0_1_SHUTDOWN			(0x8 + RUX_EID_OFFSET)
+#define SBI_EXT_BASE				(0x10 + RUX_EID_OFFSET)
+#define SBI_EXT_TIME				(0x54494D45 + RUX_EID_OFFSET)
+#define SBI_EXT_IPI				(0x735049 + RUX_EID_OFFSET)
+#define SBI_EXT_RFENCE				(0x52464E43 + RUX_EID_OFFSET)
+#define SBI_EXT_HSM				(0x48534D + RUX_EID_OFFSET)
+#define SBI_EXT_SRST				(0x53525354 + RUX_EID_OFFSET)
+#define SBI_EXT_PMU				(0x504D55 + RUX_EID_OFFSET)
+#define SBI_EXT_DBCN				(0x4442434E + RUX_EID_OFFSET)
+#define SBI_EXT_SUSP				(0x53555350 + RUX_EID_OFFSET)
+#define SBI_EXT_CPPC				(0x43505043 + RUX_EID_OFFSET)
+#define SBI_EXT_DBTR				(0x44425452 + RUX_EID_OFFSET)
 
 /* SBI function IDs for BASE extension*/
 #define SBI_EXT_BASE_GET_SPEC_VERSION		0x0
